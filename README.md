@@ -1,6 +1,6 @@
 # pcb-image-segmentation
 ## Dataset
->Built up dataset.
+>Will provide the modified split for the subset of [FPIC] (https://arxiv.org/abs/2202.08414) soon.
 ## Framework
 PyTorch 1.11.0
 ## Language
