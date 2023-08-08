@@ -29,14 +29,6 @@ scale_factor = 0.5
 checkpoint = 1      #no of epoch to save model
 
 #visualization
-# visualize_epoch_freq = 3
-# print_stats = 700
-# visualize_mask = 500
-
-# print_stats_val = 300
-# visualize_mask_val = 200
-
-#visualization
 visualize_epoch_freq = 3
 print_stats = 40
 visualize_mask = 20
@@ -45,7 +37,6 @@ visualize_mask_val = 5
 print_stats_val = 10
 
 visualize_mask_test = 1
-
 
 # Training Resume
 resume = True
