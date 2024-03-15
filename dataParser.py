@@ -37,15 +37,14 @@ class PCBParser(object):
                 name = 'test.pkl'
         else:
             name = 'val.pkl'
-            if cfg.split_set == "easy_set":
-                name = 'validate.pkl'
 
-        img_file_names = pickle.load(open(os.path.join(self.data_path, cfg.split_set, name), 'rb'))
-        #print(img_file_names[:10])
+        img_file_names = pickle.load(open(os.path.join(self.data_path, name), 'rb'))
+        # print(img_file_names[:10])
+        # exit()
         #random.shuffle(img_file_names)
 
         self.img_files = self._load_data(img_file_names, isDictionary=True)
-        if not self.val and not self.test:
+        if not self.val and not self.test and save_selected_bbox_list:
             save_file_path = os.path.join(cfg.data_path, run_id)
             if not os.path.exists(save_file_path):
                 os.makedirs(save_file_path)
@@ -66,47 +65,21 @@ class PCBParser(object):
 
     def _load_data(self, img_file_names, isDictionary=False):
         data = []
-        # Not necessary now
-        """ if not self.val:
-            if not self.test:
-                split = "train"
-            else:
-                split = "test"
-        else:
-            split = "validate" """
-
-        #path = os.path.join(cfg.data_folder, split)
-        path = cfg.data_folder      #data_folder needs to be changed for new split
+        # path = os.path.join(cfg.data_folder, split)
+        # path = cfg.data_folder      #data_folder needs to be changed for new split
         counter = 0
         bbox_annot = 0
         holder = []
 
         if cfg.split_set =="filtered_set" and isDictionary and not self.val and not self.test:
+            # consider those images where p<3 and a<=0.81
+            # Then there's a significant difference between actual and bbox annotation
             bbox_set = [p for p in img_file_names if p['perimeter']<3 and p['area']<=0.81]
-            #random.shuffle(bbox_set)
-            # To train only on images with full level annotation
-            #0% training done.
-            #Adding 20% bbox training
-            # bbox_set_20 = bbox_set[:936]   ### 936+275-->1210 20% Train
-                                            # 2146 + 275 =  2421 --> 40% Train
-            #Adding 40% bbox training
-            # bbox_set_40 = bbox_set[:2146]
-
-            #Adding 60% bbox training
-            bbox_set_60 = bbox_set[:3356]   #3356+275 = 3631 = 60% BBox
-            #print(bbox_set[:10])
+            bbox_number = cfg.bbox_number - 275  # 275 hard set always included    
+            new_bbox_set = bbox_set[:bbox_number] 
 
         for img_info in img_file_names:
-
-            #print('name: ',img_info)
-            #exit()
             img_dict = {'bbox':0}
-            # if not isDictionary:
-            #     img_dict = {'bbox':0}
-            # else:
-            #     img_info['bbox'] = 0
-            #print(name)
-            #print('pcb_id: ',pcb_id)
             if not self.val and not self.test and params.allow_bbox:
                 if isDictionary:
                     img_path = img_info['img']
@@ -115,43 +88,24 @@ class PCBParser(object):
                     name = img_info
                 indices = [match.start() for match in re.finditer(r'_', name)]
                 pcb_id = name[0:indices[1]]
-                # if isDictionary and img_info['iou_bbox'] <= 0.91:
-                #     img_dict['bbox'] = 1
-                #     bbox_annot += 1
-
                 if isDictionary and cfg.split_set=="filtered_set":
-                    if img_info['perimeter'] >= 3:      #275 
+                    if img_info['perimeter'] >= 3:      # 275 hard set
                         img_dict['bbox'] = 1
                         bbox_annot += 1
-                        # continue
-                    else:
-                        if img_info in bbox_set_60:
+                    else:                   # otherwise only take certain % from
+                                            # bbox set
+                        if img_info in new_bbox_set:
                             img_dict['bbox'] = 1
                             bbox_annot += 1
-                            # continue
-                        elif img_info in bbox_set:
-                            continue
-
-                # else:
-                #     if pcb_id in cfg.train_bbox_id:
-                #         holder.append(pcb_id)
-                #         img_dict['bbox'] = 1
-                #         bbox_annot += 1
-                #     # else:
-                #     #     if counter%2 == 0:
-                #     #         img_dict['bbox'] = 1
-                #     #         bbox_annot += 1
-                #     #     else:
-                #     #         img_dict['bbox'] = 0
+                        # elif img_info in bbox_set:
+                        #     continue
             if not isDictionary:
                 img_dict['img'] = os.path.join(path, "images", name)
                 img_dict['mask'] = os.path.join(path, "label_masks", name)
             else:
                 img_dict['img'] = img_info['img']
                 img_dict['mask'] = img_info['mask']
-                if cfg.split_set != "easy_set":
-                    img_dict['iou_bbox'] = img_info['iou_bbox']
-            
+                img_dict['iou_bbox'] = img_info['iou_bbox']
             data.append(copy.deepcopy(img_dict))
             counter += 1
         print(f'total:{counter}, bboxes:{bbox_annot}')

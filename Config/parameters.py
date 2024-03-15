@@ -1,23 +1,24 @@
-#training
+###### training
 num_epoch = 300
 batch_size = 32
 gpu = 2
+device_ids = [2, 3]
 smoothing_value = 0.85
 isReduced = False
 device_cpu = False
 output_channel = 1
-device_ids = [2, 3]
+# bbox annotation
 allow_bbox = True
-mixed_precision = True
+save_selected_bbox_list = False
 
 train_conf_th = 0.7
 val_conf_th = 0.7
 test_conf_th = 0.7
 
-#optimizer
+##### optimizer
 learning_rate = 0.00005
 
-#augmentation
+##### augmentation
 height = 512
 width = 512
 scale = (0.75, 0.75)
@@ -25,10 +26,10 @@ ratio=(1, 1)
 scale_factor = 0.5
 
 
-#model related
+##### model save
 checkpoint = 1      #no of epoch to save model
 
-#visualization
+##### visualization
 visualize_epoch_freq = 3
 print_stats = 40
 visualize_mask = 20
@@ -38,5 +39,5 @@ print_stats_val = 10
 
 visualize_mask_test = 1
 
-# Training Resume
-resume = True
+##### Training Resume
+resume = False
