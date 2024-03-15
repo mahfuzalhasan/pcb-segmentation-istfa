@@ -44,7 +44,7 @@ class PCBParser(object):
         #random.shuffle(img_file_names)
 
         self.img_files = self._load_data(img_file_names, isDictionary=True)
-        if not self.val and not self.test and save_selected_bbox_list:
+        if not self.val and not self.test and params.save_selected_bbox_list:
             save_file_path = os.path.join(cfg.data_path, run_id)
             if not os.path.exists(save_file_path):
                 os.makedirs(save_file_path)
