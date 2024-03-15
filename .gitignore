@@ -4,6 +4,6 @@ __pycache__/*
 Results/*
 output_check/*
 pretrained/*
-data/*
+# data/*
 Model/*
 trained_models/*
