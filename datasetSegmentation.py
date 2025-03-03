@@ -57,21 +57,12 @@ class PCBDataset(Dataset):
 
 
     def __getitem__(self, index):
-        #print(f'rank {torch.distributed.get_rank()} fetch sample {idx}')
-        #profiler.tick("initiation")
         image_container =  self.img_files[index%len(self.img_files)]
-        #print(image_container)
-        #profiler.tick("img access")
         img_path = image_container['img']
         mask_path = image_container['mask']
-        #print('img path: ',img_path)
-        
-        # img_id = img_path[img_path.rindex('/')+1:]
-        # indexes = [match.start() for match in re.finditer(r'_', img_id)]
-        # pcb_id = img_id[0:indexes[1]]
 
         img = cv2.imread(img_path)      # 512 x 512 x 3
-        #profiler.tick("reading image completed")
+        
         ##16-bit mask read
         mask16 = cv2.imread(mask_path, -1)
         mask = mask16.astype('uint8')   #mask is already between -> [0,1]
@@ -80,9 +71,7 @@ class PCBDataset(Dataset):
         if not self.valid and self.transform is not None:
             img, mask = self.transform.generation(img, mask, params.isReduced)
             if image_container['bbox'] == 1:
-                #self.count += 1
                 bbox_label = 1
-                #print('occurs')
                 mask_bbox = convert_to_bbox_mask(copy.deepcopy(mask))
             else:
                 mask_bbox = copy.deepcopy(mask)
